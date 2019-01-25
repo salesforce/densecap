@@ -38,7 +38,6 @@ For YouCook2 dataset, you can simply replace `cfgs/anet.yml` with `cfgs/yc2.yml`
 You need at least 15 GB of free RAM for the training.
 
 ## Testing
-```python scripts/train.py```
 The evaluation on the test set happens on the evaluation server
 For YouCook2: http://youcook2.eecs.umich.edu/leaderboard
 For ActivityNet: http://activity-net.org/challenges/2018/evaluation.html
