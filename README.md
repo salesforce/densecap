@@ -30,6 +30,12 @@ Download the dense video captioning evaluation [scripts](https://github.com/Luow
 
 The evaluate script for event proposal can be found under `tools`.
 
+The evaluation on the test set happens on the evaluation server
+
+For YouCook2: http://youcook2.eecs.umich.edu/leaderboard
+
+For ActivityNet: http://activity-net.org/challenges/2018/evaluation.html
+
 
 ## Training and Validation
 Configuration files for ActivityNet and YouCook2 are under `cfgs`. Create new directories `log` and `results` under the root directory to save log and result files.
