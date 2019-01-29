@@ -1,0 +1,7 @@
+# dataset specific settings for yc2
+dataset: "yc2"
+dataset_file: "./data/yc2/yc2_annotations_trainval.json"
+feature_root: "/checkpoint/luoweizhou/old_checkpoint02/dat/yc2/rgb_motion_1d"
+densecap_references: ["./data/yc2/val_yc2.json"]
+dur_file: "./data/yc2/yc2_duration_frame.csv"
+kernel_list: [1, 3, 5, 7, 9, 11, 15, 21, 27, 33, 41, 49, 57, 71, 111, 161]

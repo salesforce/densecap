@@ -5,7 +5,6 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-
 import os
 import json
 import numpy as np
@@ -20,12 +19,12 @@ import torch
 import torchtext
 from torch.utils.data import Dataset
 
-from data.utils import tIoU
+from data.utils import segment_iou
 
 def get_vocab_and_sentences(dataset_file, max_length=20):
     # build vocab and tokenized sentences
     text_proc = torchtext.data.Field(sequential=True, init_token='<init>',
-                                eos_token='<eos>', #tokenize='spacy',
+                                eos_token='<eos>', tokenize='spacy',
                                 lower=True, batch_first=True,
                                 fix_length=max_length)
     train_sentences = []
@@ -244,9 +243,9 @@ def _get_pos_neg(split_path, annotations, vid,
                     if window_start_t <= seg[
                         0] and window_end_t + sampling_sec * 2 >= \
                             seg[1]:
-                        overlap = tIoU([gt_start, gt_end], [
+                        overlap = segment_iou(np.array([[gt_start, gt_end]]), np.array([[
                             anc_cen_all[j] - anc_len_all[j] / 2.,
-                            anc_cen_all[j] + anc_len_all[j] / 2.])
+                            anc_cen_all[j] + anc_len_all[j] / 2.]]))
 
                         neg_overlap[j] = max(overlap, neg_overlap[j])
 

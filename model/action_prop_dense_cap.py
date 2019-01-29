@@ -5,6 +5,7 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
+
 from torch import nn
 from torch.autograd import Variable
 from .transformer import Transformer, RealTransformer
@@ -12,8 +13,8 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 import math
-from data.utils import tIoU
-
+from data.utils import segment_iou
+import time
 
 def positional_encodings(x, D):
     # input x a vector of positions
@@ -384,15 +385,16 @@ class ActionPropDenseCap(nn.Module):
             crt_pred = prop_all.data[b]
             crt_pred_cen = pred_cen.data[b]
             crt_pred_len = pred_len.data[b]
-            pred_results = []
             pred_masks = []
             batch_result = []
             crt_nproposal = 0
             nproposal = torch.sum(torch.gt(prop_all.data[b, 0, :], pos_thresh))
             nproposal = min(max(nproposal, min_prop_num_before_nms),
                             prop_all.size(-1))
+            pred_results = np.empty((nproposal, 3))
             _, sel_idx = torch.topk(crt_pred[0], nproposal)
  
+            start_t = time.time()
             for nms_thresh in nms_thresh_set:
                 for prop_idx in range(nproposal):
                     original_frame_len = actual_frame_length[b].item() + sampling_sec*2 # might be truncated at the end, hence + frame_to_second*2
@@ -406,10 +408,9 @@ class ActionPropDenseCap(nn.Module):
                         continue
 
                     hasoverlap = False
-                    for item in pred_results:
-                        if tIoU((item[0], item[1]), (pred_start, pred_end)) > nms_thresh:
+                    if crt_nproposal > 0:
+                        if np.max(segment_iou(np.array([pred_start, pred_end]), pred_results[:crt_nproposal])) > nms_thresh:
                             hasoverlap = True
-                            break
 
                     if not hasoverlap:
                         pred_bin_window_mask = torch.zeros(1, T, 1).type(dtype)
@@ -448,9 +449,9 @@ class ActionPropDenseCap(nn.Module):
 
                             gate_scores.append(torch.Tensor([crt_pred[0, sel_idx[prop_idx]]]).type(dtype))
 
-                        pred_results.append((win_start,
-                                             win_end,
-                                             crt_pred[0, sel_idx[prop_idx]]))
+                        pred_results[crt_nproposal] = np.array([win_start,
+                                                                win_end,
+                                                                crt_pred[0, sel_idx[prop_idx]]])
                         crt_nproposal += 1
 
                     if crt_nproposal >= max_prop_num:
@@ -459,9 +460,12 @@ class ActionPropDenseCap(nn.Module):
                 if crt_nproposal >= min_prop_num:
                     break
 
+            mid1_t = time.time()
+
             if len(pred_masks) == 0: # append all-one window if no window is proposed
                 pred_masks.append(torch.ones(1, T, 1).type(dtype))
                 pred_results.append((0, min(original_frame_len, T), pos_thresh))
+                crt_nproposal = 1
 
             pred_masks = Variable(torch.cat(pred_masks, 0))
             batch_x = x[b].unsqueeze(0).expand(pred_masks.size(0), x.size(1), x.size(2))
@@ -492,6 +496,8 @@ class ActionPropDenseCap(nn.Module):
             else:
                 window_mask = pred_masks
 
+            mid2_t = time.time()
+
             pred_sentence = []
             # use cap_batch as caption batch size
             cap_batch = math.ceil(480*256/T)
@@ -501,7 +507,8 @@ class ActionPropDenseCap(nn.Module):
                 pred_sentence += self.cap_model.greedy(batch_x[batch_start:batch_end],
                                                        window_mask[batch_start:batch_end], 20)
 
-            assert len(pred_sentence) == len(pred_results), (
+            pred_results = pred_results[:crt_nproposal]
+            assert len(pred_sentence) == crt_nproposal, (
                 "number of predicted sentence and proposal does not match"
             )
 
@@ -511,5 +518,8 @@ class ActionPropDenseCap(nn.Module):
                                      pred_results[idx][2],
                                      pred_sentence[idx]))
             all_proposal_results.append(tuple(batch_result))
+
+            end_t = time.time()
+            print('Processing time for tIoU: {:.2f}, mask: {:.2f}, caption: {:.2f}'.format(mid1_t-start_t, mid2_t-mid1_t, end_t-mid2_t))
 
         return all_proposal_results

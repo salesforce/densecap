@@ -5,30 +5,6 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-# computer temporal IoU between two temporal boxes
-def tIoU(interval_1, interval_2):
-    start_1, end_1 = interval_1
-    start_2, end_2 = interval_2
-    assert start_1 <= end_1 and start_2 <= end_2, (
-        "start coordinate should be less than end coordinate"
-    )
-
-    intersection = max(0, min(end_2, end_1) - max(start_2, start_1))
-
-    if intersection == 0:
-        return 0
-    else:
-        union = max(end_2, end_1) - min(start_2, start_1)
-        iou = intersection/union
-        return iou
-
-# from NBT
-def update_values(dict_from, dict_to):
-    for key, value in dict_from.items():
-        if isinstance(value, dict):
-            update_values(dict_from[key], dict_to[key])
-        elif value is not None:
-            dict_to[key] = dict_from[key]
 
 import json
 import urllib.request
@@ -104,3 +80,11 @@ def wrapper_segment_iou(target_segments, candidate_segments):
         tiou[:, i] = segment_iou(target_segments[i,:], candidate_segments)
 
     return tiou
+
+# from NBT
+def update_values(dict_from, dict_to):
+    for key, value in dict_from.items():
+        if isinstance(value, dict):
+            update_values(dict_from[key], dict_to[key])
+        elif value is not None:
+            dict_to[key] = dict_from[key]

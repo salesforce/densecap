@@ -1,0 +1,7 @@
+# dataset specific settings for anet
+dataset: "anet"
+dataset_file: "./data/anet/anet_annotations_trainval.json"
+feature_root: "/checkpoint/luoweizhou/old_checkpoint02/dat/anet/rgb_motion_1d_3folders"
+densecap_references: ["./data/anet/val_1.json", "./data/anet/val_2.json"]
+dur_file: "./data/anet/anet_duration_frame.csv"
+kernel_list: [1, 2, 3, 4, 5, 7, 9, 11, 15, 21, 29, 41, 57, 71, 111, 161, 211, 251]

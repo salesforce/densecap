@@ -5,7 +5,6 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-
 # general packages
 import os
 import argparse
@@ -34,10 +33,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--cfgs_file', default='cfgs/anet.yml', type=str, help='dataset specific settings. anet | yc2')
 parser.add_argument('--dataset', default='', type=str, help='which dataset to use. two options: anet | yc2')
 parser.add_argument('--dataset_file', default='', type=str)
-parser.add_argument('--feature_root', default='', type=str, help='the YouCookII data root')
+parser.add_argument('--feature_root', default='', type=str, help='the feature root')
 parser.add_argument('--dur_file', default='', type=str)
 parser.add_argument('--val_data_folder', default='validation', help='validation data folder')
 parser.add_argument('--densecap_eval_file', default='/z/subsystem/densevid_eval/evaluate.py')
+parser.add_argument('--densecap_references', default='', type=str)
 parser.add_argument('--start_from', default='', help='path to a model checkpoint to initialize model weights from. Empty = dont')
 parser.add_argument('--max_sentence_len', default=20, type=int)
 parser.add_argument('--num_workers', default=2, type=int)
@@ -215,8 +215,9 @@ def eval_results(densecap_result, prop_result, args):
 
     subprocess.Popen(["python2", args.densecap_eval_file, "-s", \
                       os.path.join('./results/', 'densecap_'+args.val_data_folder+'_' + args.id + '.json'), \
-                      "-r", "./tools/densevid_eval/data/val_1.json ./tools/densevid_eval/data/val_2.json", \
-                      "-v"])
+                      "-v", "-r"] + \
+                      args.densecap_references \
+                      )
 
     # write proposals to json file for evaluation (proposal)
     prop_all = {'version':'VERSION 1.0', 'results':prop_result,

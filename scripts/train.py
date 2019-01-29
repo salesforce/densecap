@@ -5,7 +5,6 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 
-
 # general packages
 import os
 import errno
@@ -107,13 +106,15 @@ parser.add_argument('--checkpoint_path', default='./checkpoint', help='folder to
 parser.add_argument('--losses_log_every', default=1, type=int, help='How often do we snapshot losses, for inclusion in the progress dump? (0 = disable)')
 parser.add_argument('--seed', default=123, type=int, help='random number generator seed to use')
 parser.add_argument('--cuda', dest='cuda', action='store_true', help='use gpu')
+parser.add_argument('--enable_visdom', action='store_true', dest='enable_visdom')
 
 
 parser.set_defaults(cuda=False, save_train_samplelist=False,
                     load_train_samplelist=False,
                     save_valid_samplelist=False,
                     load_valid_samplelist=False,
-                    gated_mask=False)
+                    gated_mask=False,
+                    enable_visdom=False)
 
 args = parser.parse_args()
 
@@ -270,7 +271,13 @@ def main(args):
 
     best_loss = float('inf')
 
-    vis, vis_window = None, None
+    if args.enable_visdom:
+        import visdom
+        vis = visdom.Visdom()
+        vis_window={'iter': None,
+                    'loss': None}
+    else:
+        vis, vis_window = None, None
 
     all_eval_losses = []
     all_cls_losses = []
@@ -297,6 +304,50 @@ def main(args):
         all_reg_losses.append(val_reg_loss)
         all_sent_losses.append(val_sent_loss)
         all_mask_losses.append(val_mask_loss)
+
+        if args.enable_visdom:
+            if vis_window['loss'] is None:
+                if not args.distributed or (args.distributed and dist.get_rank() == 0):
+                    vis_window['loss'] = vis.line(
+                    X=np.tile(np.arange(len(all_eval_losses)),
+                              (6,1)).T,
+                    Y=np.column_stack((np.asarray(all_training_losses),
+                                       np.asarray(all_eval_losses),
+                                       np.asarray(all_cls_losses),
+                                       np.asarray(all_reg_losses),
+                                       np.asarray(all_sent_losses),
+                                       np.asarray(all_mask_losses))),
+                    opts=dict(title='Loss',
+                              xlabel='Validation Iter',
+                              ylabel='Loss',
+                              legend=['train',
+                                      'dev',
+                                      'dev_cls',
+                                      'dev_reg',
+                                      'dev_sentence',
+                                      'dev_mask']))
+            else:
+                if not args.distributed or (
+                    args.distributed and dist.get_rank() == 0):
+                    vis.line(
+                    X=np.tile(np.arange(len(all_eval_losses)),
+                              (6, 1)).T,
+                    Y=np.column_stack((np.asarray(all_training_losses),
+                                       np.asarray(all_eval_losses),
+                                       np.asarray(all_cls_losses),
+                                       np.asarray(all_reg_losses),
+                                       np.asarray(all_sent_losses),
+                                       np.asarray(all_mask_losses))),
+                    win=vis_window['loss'],
+                    opts=dict(title='Loss',
+                              xlabel='Validation Iter',
+                              ylabel='Loss',
+                              legend=['train',
+                                      'dev',
+                                      'dev_cls',
+                                      'dev_reg',
+                                      'dev_sentence',
+                                      'dev_mask']))
 
         if valid_loss < best_loss:
             best_loss = valid_loss
@@ -398,6 +449,30 @@ def train(epoch, model, optimizer, train_loader, vis, vis_window, args):
         optimizer.step()
 
         train_loss.append(total_loss.data.item())
+
+        if args.enable_visdom:
+            if vis_window['iter'] is None:
+                if not args.distributed or (
+                    args.distributed and dist.get_rank() == 0):
+                    vis_window['iter'] = vis.line(
+                        X=np.arange(epoch*nbatches+train_iter, epoch*nbatches+train_iter+1),
+                        Y=np.asarray(train_loss),
+                        opts=dict(title='Training Loss',
+                                  xlabel='Training Iteration',
+                                  ylabel='Loss')
+                    )
+            else:
+                if not args.distributed or (
+                    args.distributed and dist.get_rank() == 0):
+                    vis.line(
+                        X=np.arange(epoch*nbatches+train_iter, epoch*nbatches+train_iter+1),
+                        Y=np.asarray([np.mean(train_loss)]),
+                        win=vis_window['iter'],
+                        opts=dict(title='Training Loss',
+                                  xlabel='Training Iteration',
+                                  ylabel='Loss'),
+                        update='append'
+                    )
 
         t_model_end = time.time()
         print('iter: [{}/{}], training loss: {:.4f}, '
