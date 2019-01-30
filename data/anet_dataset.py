@@ -243,7 +243,7 @@ def _get_pos_neg(split_path, annotations, vid,
                     if window_start_t <= seg[
                         0] and window_end_t + sampling_sec * 2 >= \
                             seg[1]:
-                        overlap = segment_iou(np.array([[gt_start, gt_end]]), np.array([[
+                        overlap = segment_iou(np.array([gt_start, gt_end]), np.array([[
                             anc_cen_all[j] - anc_len_all[j] / 2.,
                             anc_cen_all[j] + anc_len_all[j] / 2.]]))
 
