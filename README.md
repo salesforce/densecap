@@ -11,12 +11,11 @@ This is the source code for our paper [End-to-End Dense Video Captioning with Ma
 
 4) Install other required modules (e.g., torchtext)
 
-   `pip install -r requirements.txt`
+`pip install -r requirements.txt`
 
 Optional: If you would like to use visdom to track training do `pip install visdom`
 
 Optional: If you would like to use spacy tokenizer do `pip install spacy`
-
 
 
 ## Data Preparation
@@ -29,12 +28,6 @@ Similarly for YouCook2, the annotation files are available [here](http://youcook
 Download the dense video captioning evaluation [scripts](https://github.com/LuoweiZhou/densevid_eval) and place it under the `tools` directory. Make sure you recursively clone the repo. Our code is equavalent to the official evaluation code from ActivityNet 2017 Challenge, but faster. Note that the current evaluation [scripts](https://github.com/ranjaykrishna/densevid_eval) had a few major bugs fixed towards ActivityNet 2018 Challenge.
 
 The evaluate script for event proposal can be found under `tools`.
-
-The evaluation on the test set happens on the evaluation server
-
-For YouCook2: http://youcook2.eecs.umich.edu/leaderboard
-
-For ActivityNet: http://activity-net.org/challenges/2018/evaluation.html
 
 
 ## Training and Validation
@@ -110,25 +103,15 @@ python3 scripts/test.py --cfgs_file $cfgs_file --densecap_eval_file ./tools/dens
 
 Arguments: `epoch=19`, `stride=50`, `split='validation'`, `enc_drop=0.2`, `dec_drop=0.2`, `nlayer=2`, `cfgs_file='cfgs/anet.yml'`
 
-You need at least 8GB of free GPU memory for the evaluation. The current evaluation script only supports `batch_size=1` and is slow (1hr for yc2 and 4hr for anet). We actively welcome pull requests.
+This gives you the language evaluation results on the validation set. You need at least 8GB of free GPU memory for the evaluation. The current evaluation script only supports `batch_size=1` and is slow (1hr for yc2 and 4hr for anet). We actively welcome pull requests.
 
-### Results
-On ActivityNet Captions:
+### Leaderboard (for the test set)
+The official evaluation servers are available under [ActivityNet](http://activity-net.org/challenges/2018/evaluation.html) and [YouCook2](http://youcook2.eecs.umich.edu/leaderboard). Note that the NEW evaluation [scripts](https://github.com/ranjaykrishna/densevid_eval) from ActivityNet 2018 Challenge are used in both cases.
 
-| Method                        | Bleu@4 | METEOR | CIDEr |
-|-------------------------------|--------|--------|-------|
-| Masked Transformer            | 2.39   | 10.12  | 19.94 |
-| End-to-End Masked Transformer | 2.62   | 10.17  | 23.59 |
-
-
-On YouCook2:
-
-| Method                        | Bleu@4 | METEOR | CIDEr |
-|-------------------------------|--------|--------|-------|
-| Masked Transformer            | 0.83   | 8.08   | 18.14 |
-| End-to-End Masked Transformer | 1.16   | 8.73   | 22.67 |
 
 ## Notes
+Due to legacy reasons, we store the feature files as individual `.npy` files, which causes latency in data loading and hence instability during distributed model training. By default, we set the value of `num_workers` to 1. It could be set up to 6 for a faster data loading. However, if encouter any data parallel issue, try setting it to 0.
+
 We use a different code base for captioning-only models (dense captioning w/ GT segments). Please contact <luozhou@umich.edu> for details. Note that it can potentially work with this code base if you feed in GT segments into the captioning module rather than the generated segments. However, there is no guarantee on reproducing the results from the paper.
 
 
