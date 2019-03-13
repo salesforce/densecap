@@ -2,6 +2,7 @@
 
 This is the source code for our paper [End-to-End Dense Video Captioning with Masked Transformer](http://openaccess.thecvf.com/content_cvpr_2018/CameraReady/0037.pdf)
 
+
 ## Requirements (Recommended)
 1) [Miniconda3](https://conda.io/miniconda.html) for Python 3
 
@@ -16,6 +17,8 @@ This is the source code for our paper [End-to-End Dense Video Captioning with Ma
 Optional: If you would like to use visdom to track training do `pip install visdom`
 
 Optional: If you would like to use spacy tokenizer do `pip install spacy`
+
+Note: The code has been tested on a variety of GPUs, including 1080 Ti, Titan Xp, P100, V100 etc. However, for the latest RTX GPUs (e.g., 2080 Ti), CUDA 10.0 and hence PyTorch 1.0 are required. The code needs to be upgraded to PyTorch 1.0.
 
 
 ## Data Preparation
@@ -78,7 +81,7 @@ Arguments: `nlayer=2`, `batch_size=14`, `stride=50`, `split='training'`, `enc_dr
 
 For YouCook2 dataset, you can simply replace `cfgs/anet.yml` with `cfgs/yc2.yml`. To monitor the training (e.g., training & validation losses), start the visdom server with `python -m visdom.server` or `visdom` in the background (e.g., tmux). Then, add `--enable_visdom` as a command argument.
 
-You need at least 15 GB of free RAM for the training.
+Note that at least 15 GB of free RAM is required for the training. The `nonexistent_file` will normally be cleaned up automatically, but might need a manual delete if otherwise. More about distributed data parallel see [here (0.4.0)](https://pytorch.org/docs/0.4.0/distributed.html).
 
 ### Pre-trained Models
 The pre-trained models can be downloaded from [here (1GB)](http://youcook2.eecs.umich.edu/static/dat/densecap_checkpoints/pre-trained-models.tar.gz). Make sure you uncompress the file under the `checkpoint` directory (create one under the root directory if not exists).
