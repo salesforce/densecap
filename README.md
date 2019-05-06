@@ -73,7 +73,7 @@ Arguments: `batch_size=14`, `mask_weight=1.0`, `sent_weight=0.25`, `cfgs_file='c
 
 For YouCook2 dataset, you can simply replace `cfgs/anet.yml` with `cfgs/yc2.yml`. To monitor the training (e.g., training & validation losses), start the visdom server with `visdom` in the background (e.g., tmux). Then, add `--enable_visdom` as a command argument.
 
-Note that at least 15 GB of free RAM is required for the training. The `nonexistent_file` will normally be cleaned up automatically, but might need a manual delete if otherwise. More about distributed data parallel see [here (0.4.0)](https://pytorch.org/docs/0.4.0/distributed.html).
+Note that at least 15 GB of free RAM is required for the training. The `nonexistent_file` will normally be cleaned up automatically, but might need a manual delete if otherwise. More about distributed data parallel see [here (0.4.0)](https://pytorch.org/docs/0.4.0/distributed.html). You can also run the code with a single GPU by setting `world_size=1`.
 
 ### Pre-trained Models
 The pre-trained models can be downloaded from [here (1GB)](http://youcook2.eecs.umich.edu/static/dat/densecap_checkpoints/pre-trained-models.tar.gz). Make sure you uncompress the file under the `checkpoint` directory (create one under the root directory if not exists).
