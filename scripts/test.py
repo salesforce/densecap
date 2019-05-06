@@ -43,15 +43,15 @@ parser.add_argument('--max_sentence_len', default=20, type=int)
 parser.add_argument('--num_workers', default=2, type=int)
 
 # Model settings: General
-parser.add_argument('--d_model', default=512, type=int, help='size of the rnn in number of hidden nodes in each layer')
-parser.add_argument('--d_hidden', default=1024, type=int)
+parser.add_argument('--d_model', default=1024, type=int, help='size of the rnn in number of hidden nodes in each layer')
+parser.add_argument('--d_hidden', default=2048, type=int)
 parser.add_argument('--n_heads', default=8, type=int)
-parser.add_argument('--in_emb_dropout', default=0, type=float)
-parser.add_argument('--attn_dropout', default=0, type=float)
-parser.add_argument('--vis_emb_dropout', default=0, type=float)
-parser.add_argument('--cap_dropout', default=0, type=float)
+parser.add_argument('--in_emb_dropout', default=0.1, type=float)
+parser.add_argument('--attn_dropout', default=0.2, type=float)
+parser.add_argument('--vis_emb_dropout', default=0.1, type=float)
+parser.add_argument('--cap_dropout', default=0.2, type=float)
 parser.add_argument('--image_feat_size', default=3072, type=int, help='the encoding size of the image feature')
-parser.add_argument('--n_layers', default=1, type=int, help='number of layers in the sequence model')
+parser.add_argument('--n_layers', default=2, type=int, help='number of layers in the sequence model')
 
 # Model settings: Proposal and mask
 parser.add_argument('--slide_window_size', default=480, type=int, help='the (temporal) size of the sliding window')
