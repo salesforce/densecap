@@ -1,6 +1,6 @@
 # End-to-End Dense Video Captioning with Masked Transformer
 
-This is the source code for our paper [End-to-End Dense Video Captioning with Masked Transformer](http://openaccess.thecvf.com/content_cvpr_2018/CameraReady/0037.pdf)
+This is the source code for our paper [End-to-End Dense Video Captioning with Masked Transformer](http://openaccess.thecvf.com/content_cvpr_2018/CameraReady/0037.pdf). It mainly supports dense video captioning on **generated** segments. To generate captions on **GT** segments, please refer to our new GVD [repo](https://github.com/facebookresearch/grounded-video-description) and also our [notes](#endnotes).
 
 
 ## Requirements (Recommended)
@@ -34,7 +34,7 @@ The evaluate script for event proposal can be found under `tools`.
 
 
 ## Training and Validation
-Configuration files for ActivityNet and YouCook2 are under `cfgs`. Create new directories `log` and `results` under the root directory to save log and result files.
+First, set the paths in configuration files (under `cfgs`) to your own data and feature directories. Create new directories `log` and `results` under the root directory to save log and result files.
 
 The example command on running a 4-GPU distributed data parallel job (for ActivityNet):
 
@@ -75,6 +75,9 @@ For YouCook2 dataset, you can simply replace `cfgs/anet.yml` with `cfgs/yc2.yml`
 
 Note that at least 15 GB of free RAM is required for the training. The `nonexistent_file` will normally be cleaned up automatically, but might need a manual delete if otherwise. More about distributed data parallel see [here (0.4.0)](https://pytorch.org/docs/0.4.0/distributed.html). You can also run the code with a single GPU by setting `world_size=1`.
 
+Due to legacy reasons, we store the feature files as individual `.npy` files, which causes latency in data loading and hence instability during distributed model training. By default, we set the value of `num_workers` to 1. It could be set up to 6 for a faster data loading. However, if encouter any data parallel issue, try setting it to 0.
+
+
 ### Pre-trained Models
 The pre-trained models can be downloaded from [here (1GB)](http://youcook2.eecs.umich.edu/static/dat/densecap_checkpoints/pre-trained-models.tar.gz). Make sure you uncompress the file under the `checkpoint` directory (create one under the root directory if not exists).
 
@@ -102,10 +105,8 @@ This gives you the language evaluation results on the validation set. You need a
 The official evaluation servers are available under [ActivityNet](http://activity-net.org/challenges/2018/evaluation.html) and [YouCook2](http://youcook2.eecs.umich.edu/leaderboard). Note that the NEW evaluation [scripts](https://github.com/ranjaykrishna/densevid_eval) from ActivityNet 2018 Challenge are used in both cases.
 
 
-## Notes
-Due to legacy reasons, we store the feature files as individual `.npy` files, which causes latency in data loading and hence instability during distributed model training. By default, we set the value of `num_workers` to 1. It could be set up to 6 for a faster data loading. However, if encouter any data parallel issue, try setting it to 0.
-
-We use a different code base for captioning-only models (dense captioning w/ GT segments). Please contact <luozhou@umich.edu> for details. Note that it can potentially work with this code base if you feed in GT segments into the captioning module rather than the generated segments. However, there is no guarantee on reproducing the results from the paper.
+## <a name="endnotes"></a>Notes
+We use a different code base for captioning-only models (dense captioning on GT segments). Please contact <luozhou@umich.edu> for details. Note that it can potentially work with this code base if you feed in GT segments into the captioning module rather than the generated segments. However, there is no guarantee on reproducing the results from the paper. You can also refer to this [implementation](https://github.com/facebookresearch/grounded-video-description) where you need to config `--att_model` to 'transformer'.
 
 
 ## Citation
