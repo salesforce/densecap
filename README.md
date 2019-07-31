@@ -27,6 +27,9 @@ For ActivityNet, download the re-formatted annotation files from [here](http://y
 
 Similarly for YouCook2, the annotation files are available [here](http://youcook2.eecs.umich.edu/static/dat/yc2_densecap/yc2.tar.gz) and should be placed under `data`. The feature files are [[train (9.6GB)](http://youcook2.eecs.umich.edu/static/dat/yc2_densecap/training_feat_yc2.tar.gz), [val (3.2GB)](http://youcook2.eecs.umich.edu/static/dat/yc2_densecap/validation_feat_yc2.tar.gz), [test (1.5GB)](http://youcook2.eecs.umich.edu/static/dat/yc2_densecap/testing_feat_yc2.tar.gz)].
 
+You could also extract the feature on your own with this [code](https://github.com/LuoweiZhou/anet2016-cuhk-feature). Note that ActivityNet is processed with an older version of the repo while YouCook2 is processed with the latest code which had a minor change regarding the [sampling](https://github.com/LuoweiZhou/anet2016-cuhk-feature/blob/master/pyActionRec/video_proc.py#L85) approach. This accounts for the difference in the formulation of [frame_to_second](https://github.com/salesforce/densecap/blob/master/data/anet_dataset.py#L131) conversion.
+
+
 ### Evaluate scripts
 Download the dense video captioning evaluation [scripts](https://github.com/LuoweiZhou/densevid_eval) and place it under the `tools` directory. Make sure you recursively clone the repo. Our code is equavalent to the official evaluation code from ActivityNet 2017 Challenge, but faster. Note that the current evaluation [scripts](https://github.com/ranjaykrishna/densevid_eval) had a few major bugs fixed towards ActivityNet 2018 Challenge.
 
