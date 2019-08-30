@@ -464,7 +464,7 @@ class ActionPropDenseCap(nn.Module):
 
             if len(pred_masks) == 0: # append all-one window if no window is proposed
                 pred_masks.append(torch.ones(1, T, 1).type(dtype))
-                pred_results.append((0, min(original_frame_len, T), pos_thresh))
+                pred_results[0] = np.array([0, min(original_frame_len, T), pos_thresh])
                 crt_nproposal = 1
 
             pred_masks = Variable(torch.cat(pred_masks, 0))
